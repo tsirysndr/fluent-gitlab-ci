@@ -1,3 +1,3 @@
-import { GitlabCI, Job } from "./src/index.ts";
+import { GitlabCI, Job, Environment } from "./src/index.ts";
 
-export { GitlabCI, Job };
+export { GitlabCI, Job, Environment };

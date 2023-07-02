@@ -1,5 +1,4 @@
-import { GitlabCI, Job } from "../mod.ts";
-import Environment from "../src/environment.ts";
+import { GitlabCI, Job, Environment } from "../mod.ts";
 
 const header = `
   To contribute improvements to CI/CD templates, please follow the Development guide at:
@@ -66,7 +65,7 @@ const deploy = new Job()
   .script("./deploy.sh")
   .artifacts({
     reports: {
-      dotenv: ".env",
+      dotenv: "deploy.env",
     },
   })
   .environment(
@@ -92,7 +91,7 @@ const terraformDestroy = new Job()
   .environment(new Environment("$CI_COMMIT_REF_SLUG").action("stop"))
   .rules([
     {
-      if: "'$AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY && $AWS_DEFAULT_REGION && $CI_COMMIT_REF_PROTECTED == \"false\"'",
+      if: '$AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY && $AWS_DEFAULT_REGION && $CI_COMMIT_REF_PROTECTED == "false"',
       when: "manual",
     },
     {
