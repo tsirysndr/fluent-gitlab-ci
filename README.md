@@ -44,3 +44,5 @@ console.log(gitlabci.toString());
 
 gitlabci.toFile();
 ```
+
+See [examples](./examples) for more details.
