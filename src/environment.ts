@@ -11,7 +11,7 @@ class Environment {
     return this.environment;
   }
 
-  constructor(name: string, url: string) {
+  constructor(name: string, url?: string) {
     this.environment = {
       name,
       url,
