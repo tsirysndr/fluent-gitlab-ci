@@ -1,6 +1,6 @@
 # Fluent GitLab CI
 
-[![deno module](https://shield.deno.dev/x/fluent-gitlab-ci)](https://deno.land/x/fluent-gitlab-ci)
+[![deno module](https://shield.deno.dev/x/fluent_gitlab_ci)](https://deno.land/x/fluent_gitlab_ci)
 ![deno compatibility](https://shield.deno.dev/deno/^1.34)
 [![](https://img.shields.io/codecov/c/gh/tsirysndr/fluent-gitlab-ci)](https://codecov.io/gh/tsirysndr/fluent-gitlab-ci)
 
@@ -9,7 +9,7 @@ Fluent GitLab CI is a deno module for generating GitLab CI configuration files e
 ## 🚀 Usage
 
 ```ts
-import { GitlabCI, Job } from "https://deno.land/x/fluent-gitlab-ci/mod.ts";
+import { GitlabCI, Job } from "https://deno.land/x/fluent_gitlab_ci/mod.ts";
 
 const build = new Job().stage("build").script(`
   echo "Compiling the code..."
