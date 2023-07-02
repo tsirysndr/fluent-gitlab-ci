@@ -115,7 +115,7 @@ class GitlabCI {
     return this;
   }
 
-  toFile(path = ".gitlab-ci.yml") {
+  write(path = ".gitlab-ci.yml") {
     const config = this.toString();
     Deno.writeTextFileSync(path, config);
   }

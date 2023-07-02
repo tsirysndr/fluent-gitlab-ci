@@ -42,7 +42,7 @@ const gitlabci = new GitlabCI()
 
 console.log(gitlabci.toString());
 
-gitlabci.toFile();
+gitlabci.write();
 ```
 
 See [examples](./examples) for more details.
