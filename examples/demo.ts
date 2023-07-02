@@ -1,8 +1,11 @@
 import { GitlabCI, Job } from "../mod.ts";
+import Environment from "../src/environment.ts";
 
 const build = new Job()
   .stage("build")
-  .environment("review/$CI_COMMIT_REF_NAME", "$CI_ENVIRONMENT_URL")
+  .environment(
+    new Environment("review/$CI_COMMIT_REF_NAME", "$CI_ENVIRONMENT_URL")
+  )
   .script("echo 'Hello, world!'")
   .script(
     "echo 'This job is running against branch=$CI_COMMIT_REF_NAME and commit=$CI_COMMIT_SHA'"
