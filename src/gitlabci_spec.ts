@@ -8,21 +8,75 @@ export type Rule = {
   when?: string;
 };
 
+export type Reports = {
+  junit?: string | string[];
+  browser_performance?: string;
+  coverage_report?: {
+    coverage_format: string;
+    path: string;
+  };
+  codequality?: string | string[];
+  dotenv?: string | string[];
+  lsif?: string | string[];
+  sast?: string | string[];
+  dependency_scanning?: string | string[];
+  container_scanning?: string | string[];
+  dast?: string | string[];
+  license_management?: string | string[];
+  license_scanning?: string | string[];
+  requirements?: string | string[];
+  secret_detection?: string | string[];
+  metrics?: string | string[];
+  terraform?: string | string[];
+  cyclonedx?: string | string[];
+  load_performance?: string | string[];
+};
+
+export type Artifacts = {
+  paths?: string[];
+  exclude?: string[];
+  expose_as?: string;
+  name?: string;
+  untracked?: boolean;
+  when?: "on_success" | "on_failure" | "always";
+  expires_in?: string;
+  reports?: Reports;
+};
+
+export type Action = "start" | "prepare" | "stop" | "verify" | "access";
+
+export type DeploymentTier =
+  | "production"
+  | "staging"
+  | "testing"
+  | "development"
+  | "other";
+
+export type Environment = {
+  name: string;
+  url?: string;
+  on_stop?: string;
+  action?: Action;
+  auto_stop_in?: string;
+  kubernetes?: {
+    namespace: string;
+  };
+  deployment_tier?: DeploymentTier;
+};
 export type Job = {
   stage?: string;
-  environment?: {
-    name: string;
-    url: string;
-  };
+  environment?: Environment | string;
+  image?: string;
+  extends?: string;
+  resource_group?: string;
   script?: string[];
+  before_script?: string[];
   only?: string[];
   rules?: Rule[];
   when?: string;
   allow_failure?: boolean;
   except?: string[];
-  artifacts?: {
-    paths: string[];
-  };
+  artifacts?: Artifacts;
   services?: string[];
   parallel?:
     | {
@@ -36,6 +90,7 @@ export type Job = {
     strategy: string;
   }[];
   cache?: Cache;
+  variables?: Variable;
 };
 
 export type Variable = {

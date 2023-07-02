@@ -1,4 +1,5 @@
 import { GitlabCI, Job } from "../mod.ts";
+import Environment from "../src/environment.ts";
 
 const header = `
   To contribute improvements to CI/CD templates, please follow the Development guide at:
@@ -32,6 +33,72 @@ const awsVarsRules = [
   },
 ];
 
+const terraformApply = new Job()
+  .stage("provision")
+  .image(
+    "$CI_TEMPLATE_REGISTRY_HOST/gitlab-org/5-minute-production-app/deploy-template/stable"
+  )
+  .extends(".needs_aws_vars")
+  .resource_group("terraform").beforeScript(`
+    cp /*.tf .
+    cp /deploy.sh .
+  `).script(`
+    gitlab-terraform init
+    gitlab-terraform plan
+    gitlab-terraform plan-json
+    gitlab-terraform apply
+  `);
+
+const deploy = new Job()
+  .stage("deploy")
+  .image(
+    "$CI_TEMPLATE_REGISTRY_HOST/gitlab-org/5-minute-production-app/deploy-template/stable"
+  )
+  .extends(".needs_aws_vars")
+  .resource_group("deploy")
+  .beforeScript(
+    `
+   cp /*.tf .
+   cp /deploy.sh .
+   cp /conf.nginx .
+  `
+  )
+  .script("./deploy.sh")
+  .artifacts({
+    reports: {
+      dotenv: ".env",
+    },
+  })
+  .environment(
+    new Environment("$CI_COMMIT_REF_SLUG", "$DYNAMIC_ENVIRONMENT_URL").onStop(
+      "terraform_destroy"
+    )
+  );
+
+const terraformDestroy = new Job()
+  .variables({
+    GIT_STRATEGY: "none",
+  })
+  .stage("destroy")
+  .image(
+    "$CI_TEMPLATE_REGISTRY_HOST/gitlab-org/5-minute-production-app/deploy-template/stable"
+  )
+  .beforeScript(
+    `
+   cp /*.tf .
+   cp /deploy.sh .`
+  )
+  .script("gitlab-terraform destroy -auto-approve")
+  .environment(new Environment("$CI_COMMIT_REF_SLUG").action("stop"))
+  .rules([
+    {
+      if: "'$AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY && $AWS_DEFAULT_REGION && $CI_COMMIT_REF_PROTECTED == \"false\"'",
+      when: "manual",
+    },
+    {
+      when: "never",
+    },
+  ]);
 const gitlabci = new GitlabCI()
   .comment(header)
   .comment("")
@@ -44,6 +111,9 @@ const gitlabci = new GitlabCI()
   .stages(["build", "test", "provision", "deploy", "destroy"])
   .variables(env)
   .cache([".terraform"])
-  .addJob(".needs_aws_vars", new Job().rules(awsVarsRules));
+  .addJob(".needs_aws_vars", new Job().rules(awsVarsRules))
+  .addJob("terraform_apply", terraformApply)
+  .addJob("deploy", deploy)
+  .addJob("terraform_destroy", terraformDestroy);
 
 console.log(gitlabci.toString());

@@ -12,7 +12,7 @@ const build = new Job()
   .when("on_success")
   .allowFailure(false)
   .except(["master"])
-  .artifacts(["public"])
+  .artifacts({ paths: ["public"] })
   .services(["postgres:11.7"])
   .parallel(2)
   .cache("$CI_COMMIT_REF_SLUG", ["node_modules/"]);

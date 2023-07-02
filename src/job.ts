@@ -1,4 +1,5 @@
-import { Job as JobSpec, Rule } from "./gitlabci_spec.ts";
+import Environment from "./environment.ts";
+import { Artifacts, Job as JobSpec, Rule, Variable } from "./gitlabci_spec.ts";
 
 class Job {
   private job: JobSpec;
@@ -12,11 +13,23 @@ class Job {
     return this;
   }
 
-  environment(name: string, url: string): Job {
-    this.job.environment = {
-      name,
-      url,
-    };
+  image(image: string): Job {
+    this.job.image = image;
+    return this;
+  }
+
+  extends(value: string): Job {
+    this.job.extends = value;
+    return this;
+  }
+
+  resource_group(group: string): Job {
+    this.job.resource_group = group;
+    return this;
+  }
+
+  environment(environment: Environment): Job {
+    this.job.environment = environment.into();
     return this;
   }
 
@@ -30,6 +43,20 @@ class Job {
         this.job.script
           ? this.job.script.push(line)
           : (this.job.script = [line])
+      );
+    return this;
+  }
+
+  beforeScript(script: string): Job {
+    script = script.trim();
+    script
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .forEach((line) =>
+        this.job.before_script
+          ? this.job.before_script.push(line)
+          : (this.job.before_script = [line])
       );
     return this;
   }
@@ -59,10 +86,8 @@ class Job {
     return this;
   }
 
-  artifacts(paths: string[]): Job {
-    this.job.artifacts = {
-      paths,
-    };
+  artifacts(values: Artifacts): Job {
+    this.job.artifacts = values;
     return this;
   }
 
@@ -99,6 +124,11 @@ class Job {
       key,
       paths,
     };
+    return this;
+  }
+
+  variables(values: Variable): Job {
+    this.job.variables = values;
     return this;
   }
 
