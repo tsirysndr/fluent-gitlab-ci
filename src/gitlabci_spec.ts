@@ -71,7 +71,8 @@ export type Job = {
   resource_group?: string;
   script?: string[];
   before_script?: string[];
-  only?: string[];
+  after_script?: string[];
+  only?: string[] | { changes?: string[]; variables?: string[] };
   rules?: Rule[];
   when?: string;
   allow_failure?: boolean;
@@ -91,6 +92,7 @@ export type Job = {
   }[];
   cache?: Cache;
   variables?: Variable;
+  dependencies?: string[];
 };
 
 export type Variable = {

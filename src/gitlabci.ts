@@ -104,10 +104,10 @@ class GitlabCI {
         str += `${item}\n`;
         continue;
       }
-      str += `${stringify(item)}\n`;
+      str += `${stringify(item, { lineWidth: 0 })}\n`;
     }
 
-    return str.replaceAll(" {}", "");
+    return str.replaceAll(" {}", "").replaceAll("|-", "|");
   }
 
   newLine() {

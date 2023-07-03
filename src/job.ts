@@ -13,6 +13,11 @@ class Job {
     return this;
   }
 
+  dependencies(dependencies: string[]): Job {
+    this.job.dependencies = dependencies;
+    return this;
+  }
+
   image(image: string): Job {
     this.job.image = image;
     return this;
@@ -33,8 +38,16 @@ class Job {
     return this;
   }
 
-  script(script: string): Job {
+  script(script: string, options?: { multiline: boolean }): Job {
     script = script.trim();
+
+    if (options?.multiline) {
+      this.job.script
+        ? this.job.script.push(script)
+        : (this.job.script = [script]);
+      return this;
+    }
+
     script
       .split("\n")
       .map((line) => line.trim())
@@ -47,8 +60,16 @@ class Job {
     return this;
   }
 
-  beforeScript(script: string): Job {
+  beforeScript(script: string, options?: { multiline: boolean }): Job {
     script = script.trim();
+
+    if (options?.multiline) {
+      this.job.before_script
+        ? this.job.before_script.push(script)
+        : (this.job.before_script = [script]);
+      return this;
+    }
+
     script
       .split("\n")
       .map((line) => line.trim())
@@ -61,7 +82,29 @@ class Job {
     return this;
   }
 
-  only(only: string[]): Job {
+  afterScript(script: string, options?: { multiline: boolean }): Job {
+    script = script.trim();
+
+    if (options?.multiline) {
+      this.job.after_script
+        ? this.job.after_script.push(script)
+        : (this.job.after_script = [script]);
+      return this;
+    }
+
+    script
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .forEach((line) =>
+        this.job.after_script
+          ? this.job.after_script.push(line)
+          : (this.job.after_script = [line])
+      );
+    return this;
+  }
+
+  only(only: string[] | { changes?: string[]; variables?: string[] }): Job {
     this.job.only = only;
     return this;
   }
