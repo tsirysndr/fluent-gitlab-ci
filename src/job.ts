@@ -13,6 +13,16 @@ class Job {
     return this;
   }
 
+  interruptible(value: boolean): Job {
+    this.job.interruptible = value;
+    return this;
+  }
+
+  needs(needs: string[]): Job {
+    this.job.needs = needs;
+    return this;
+  }
+
   dependencies(dependencies: string[]): Job {
     this.job.dependencies = dependencies;
     return this;

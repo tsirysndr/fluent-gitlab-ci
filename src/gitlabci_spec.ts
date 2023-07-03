@@ -6,6 +6,7 @@ export type Cache = {
 export type Rule = {
   if?: string;
   when?: string;
+  exists?: string[];
 };
 
 export type Reports = {
@@ -68,6 +69,8 @@ export type Job = {
   environment?: Environment | string;
   image?: string;
   extends?: string;
+  interruptible?: boolean;
+  needs?: string[];
   resource_group?: string;
   script?: string[];
   before_script?: string[];
@@ -130,7 +133,9 @@ type GitlabSpec = {
   timeout?: any;
   include?: Include[];
   pages?: any;
-  workflow?: any;
+  workflow?: {
+    rules: Rule[];
+  };
   stages?: string[];
   build?: {
     stage: string;
@@ -147,6 +152,8 @@ export type YamlSpec = (
   | { variables: Variable }
   | { cache: Cache }
   | { include: Include }
+  | { image: string }
+  | { before_script: string[] }
 )[];
 
 export default GitlabSpec;

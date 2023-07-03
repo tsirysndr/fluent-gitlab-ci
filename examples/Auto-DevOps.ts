@@ -1,0 +1,193 @@
+import { GitlabCI, Job } from "../mod.ts";
+
+const header = `
+ To contribute improvements to CI/CD templates, please follow the Development guide at:
+ https://docs.gitlab.com/ee/development/cicd/templates.html
+ This specific template is located at:
+ https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
+
+ Auto DevOps
+
+ This CI/CD configuration provides a standard pipeline for
+ * building a Docker image (using a buildpack if necessary),
+ * storing the image in the container registry,
+ * running tests from a buildpack,
+ * running code quality analysis,
+ * creating a review app for each topic branch,
+ * and continuous deployment to production
+
+ Test jobs may be disabled by setting environment variables:
+ * test: TEST_DISABLED
+ * code_quality: CODE_QUALITY_DISABLED
+ * license_management: LICENSE_MANAGEMENT_DISABLED
+ * browser_performance: BROWSER_PERFORMANCE_DISABLED
+ * load_performance: LOAD_PERFORMANCE_DISABLED
+ * sast: SAST_DISABLED
+ * secret_detection: SECRET_DETECTION_DISABLED
+ * dependency_scanning: DEPENDENCY_SCANNING_DISABLED
+ * container_scanning: CONTAINER_SCANNING_DISABLED
+ * dast: DAST_DISABLED
+ * review: REVIEW_DISABLED
+ * stop_review: REVIEW_DISABLED
+ * code_intelligence: CODE_INTELLIGENCE_DISABLED
+
+ In order to deploy, you must have a Kubernetes cluster configured either
+ via a project integration, or via group/project variables.
+ KUBE_INGRESS_BASE_DOMAIN must also be set on the cluster settings,
+ as a variable at the group or project level, or manually added below.
+
+ Continuous deployment to production is enabled by default.
+ If you want to deploy to staging first, set STAGING_ENABLED environment variable.
+ If you want to enable incremental rollout, either manual or time based,
+ set INCREMENTAL_ROLLOUT_MODE environment variable to "manual" or "timed".
+ If you want to use canary deployments, set CANARY_ENABLED environment variable.
+
+ If Auto DevOps fails to detect the proper buildpack, or if you want to
+ specify a custom buildpack, set a project variable \`BUILDPACK_URL\` to the
+ repository URL of the buildpack.
+ e.g. BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby.git#v142
+ If you need multiple buildpacks, add a file to your project called
+ \`.buildpacks\` that contains the URLs, one on each line, in order.
+ Note: Auto CI does not work with multiple buildpacks yet
+`;
+
+const env = {
+  CS_DEFAULT_BRANCH_IMAGE:
+    "$CI_REGISTRY_IMAGE/$CI_DEFAULT_BRANCH:$CI_COMMIT_SHA",
+  POSTGRES_USER: "user",
+  POSTGRES_PASSWORD: "testing-password",
+  POSTGRES_DB: "$CI_ENVIRONMENT_SLUG",
+  DOCKER_DRIVER: "overlay2",
+  ROLLOUT_RESOURCE_TYPE: "deployment",
+  DOCKER_TLS_CERTDIR: "",
+};
+
+const stages = [
+  "build",
+  "test",
+  "deploy",
+  "review",
+  "dast",
+  "staging",
+  "canary",
+  "production",
+  "incremental rollout 10%",
+  "incremental rollout 25%",
+  "incremental rollout 50%",
+  "incremental rollout 100%",
+  "performance",
+  "cleanup",
+];
+
+const workflow = {
+  rules: [
+    {
+      if: '$BUILDPACK_URL || $AUTO_DEVOPS_EXPLICITLY_ENABLED == "1" || $DOCKERFILE_PATH',
+    },
+    {
+      exists: ["Dockerfile"],
+    },
+    {
+      exists: ["project.clj"],
+    },
+    {
+      exists: [
+        "go.mod",
+        "Gopkg.mod",
+        "Godeps/Godeps.json",
+        "vendor/vendor.json",
+        "glide.yaml",
+        "src/**/*.go",
+      ],
+    },
+    {
+      exists: ["gradlew", "build.gradle", "settings.gradle"],
+    },
+    {
+      exists: [
+        "pom.xml",
+        "pom.atom",
+        "pom.clj",
+        "pom.groovy",
+        "pom.rb",
+        "pom.scala",
+        "pom.yaml",
+        "pom.yml",
+      ],
+    },
+    {
+      exists: [".buildpacks"],
+    },
+    {
+      exists: ["package.json"],
+    },
+    {
+      exists: ["composer.json", "index.php"],
+    },
+    {
+      exists: ["**/conf/application.conf"],
+    },
+
+    {
+      exists: ["requirements.txt", "setup.py", "Pipfile"],
+    },
+    {
+      exists: ["Gemfile"],
+    },
+    {
+      exists: [
+        "*.sbt",
+        "project/*.scala",
+        ".sbt/*.scala",
+        "project/build.properties",
+      ],
+    },
+    {
+      exists: [".static"],
+    },
+  ],
+};
+
+const gitlabci = new GitlabCI()
+  .comment(header)
+  .comment("")
+  .image("alpine:latest")
+  .variables(env)
+  .stages(stages)
+  .workflow(workflow)
+  .comment(
+    `
+  NOTE: These links point to the latest templates for development in GitLab canonical project,
+  therefore the actual templates that were included for Auto DevOps pipelines
+  could be different from the contents in the links.
+  To view the actual templates, please replace \`master\` to the specific GitLab version when
+  the Auto DevOps pipeline started running e.g. \`v13.0.2-ee\`.
+  `
+  )
+  .include({ template: "Jobs/Build.gitlab-ci.yml" })
+  .include({ template: "Jobs/Test.gitlab-ci.yml" })
+  .include({ template: "Jobs/Code-Quality.gitlab-ci.yml" })
+  .include({ template: "Jobs/Code-Intelligence.gitlab-ci.yml" })
+  .include({ template: "Jobs/Deploy.gitlab-ci.yml" })
+  .include({ template: "Jobs/Deploy/ECS.gitlab-ci.yml" })
+  .include({ template: "Jobs/Deploy/EC2.gitlab-ci.yml" })
+  .include({ template: "Jobs/DAST-Default-Branch-Deploy.gitlab-ci.yml" })
+  .include({ template: "Jobs/Browser-Performance-Testing.gitlab-ci.yml" })
+  .include({ template: "Jobs/Helm-2to3.gitlab-ci.yml" })
+  .include({ template: "Security/DAST.gitlab-ci.yml" })
+  .include({ template: "Jobs/Container-Scanning.gitlab-ci.yml" })
+  .include({ template: "Jobs/Dependency-Scanning.gitlab-ci.yml" })
+  .include({ template: "Jobs/License-Scanning.gitlab-ci.yml" })
+  .include({ template: "Jobs/SAST.gitlab-ci.yml" })
+  .include({ template: "Jobs/Secret-Detection.gitlab-ci.yml" })
+  .comment(
+    `
+ The latest build job generates a dotenv report artifact with a CI_APPLICATION_TAG
+ that also includes the image digest. This configures Auto Deploy to receive
+ this artifact and use the updated CI_APPLICATION_TAG for deployments.
+  `
+  )
+  .addJob(".auto-deploy", new Job().dependencies(["build"]))
+  .addJob("dast_environment_deploy", new Job().dependencies(["build"]));
+
+console.log(gitlabci.toString());
