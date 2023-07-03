@@ -100,7 +100,7 @@ class GitlabCI {
     return this;
   }
 
-  include(value: { template: string }) {
+  include(value: { template: string }): GitlabCI {
     if (this.yaml.find((item) => (item as { include: Include }).include)) {
       const { include } = this.yaml.filter(
         (item) => (item as { include: Include }).include
@@ -118,9 +118,16 @@ class GitlabCI {
     return this;
   }
 
-  workflow(value: { rules: Rule[] }) {
+  workflow(value: { rules: Rule[] }): GitlabCI {
     this.yaml.push({
       workflow: value,
+    });
+    return this;
+  }
+
+  services(services: string[]): GitlabCI {
+    this.yaml.push({
+      services,
     });
     return this;
   }
@@ -139,7 +146,7 @@ class GitlabCI {
     return str.replaceAll(" {}", "").replaceAll("|-", "|");
   }
 
-  newLine() {
+  newLine(): GitlabCI {
     this.yaml.push("");
     return this;
   }
