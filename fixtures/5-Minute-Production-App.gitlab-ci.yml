@@ -84,8 +84,7 @@ terraform_destroy:
     name: $CI_COMMIT_REF_SLUG
     action: stop
   rules:
-    - if: $AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY && $AWS_DEFAULT_REGION &&
-        $CI_COMMIT_REF_PROTECTED == "false"
+    - if: $AWS_ACCESS_KEY_ID && $AWS_SECRET_ACCESS_KEY && $AWS_DEFAULT_REGION && $CI_COMMIT_REF_PROTECTED == "false"
       when: manual
     - when: never
 
