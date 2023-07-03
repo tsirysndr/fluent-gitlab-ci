@@ -18,7 +18,7 @@ const build = new Job()
   .artifacts({ paths: ["public"] })
   .services(["postgres:11.7"])
   .parallel(2)
-  .cache("$CI_COMMIT_REF_SLUG", ["node_modules/"]);
+  .cache(["node_modules/"], "$CI_COMMIT_REF_SLUG");
 
 const test = new Job().stage("test");
 const unitTest = new Job().stage("test");

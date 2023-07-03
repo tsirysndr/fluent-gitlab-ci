@@ -43,7 +43,11 @@ class Job {
     return this;
   }
 
-  environment(environment: Environment): Job {
+  environment(environment: string | Environment): Job {
+    if (typeof environment === "string") {
+      this.job.environment = environment;
+      return this;
+    }
     this.job.environment = environment.into();
     return this;
   }
@@ -172,7 +176,7 @@ class Job {
     return this;
   }
 
-  cache(key: string, paths: string[]): Job {
+  cache(paths: string[], key?: string): Job {
     this.job.cache = {
       key,
       paths,
