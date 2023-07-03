@@ -154,6 +154,7 @@ export type YamlSpec = (
   | { include: Include }
   | { image: string }
   | { before_script: string[] }
+  | { services: string[] }
 )[];
 
 export default GitlabSpec;
