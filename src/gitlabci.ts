@@ -1,6 +1,6 @@
 import { stringify } from "https://esm.sh/yaml@v2.3.1";
 import Job from "./job.ts";
-import { YamlSpec, Variable, Include } from "./gitlabci_spec.ts";
+import { YamlSpec, Variable, Include, Rule } from "./gitlabci_spec.ts";
 
 class GitlabCI {
   private yaml: YamlSpec;
@@ -78,6 +78,28 @@ class GitlabCI {
     return this;
   }
 
+  beforeScript(script: string): GitlabCI {
+    script = script.trim();
+
+    const before_script = script
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
+
+    this.yaml.push({
+      before_script,
+    });
+
+    return this;
+  }
+
+  image(image: string): GitlabCI {
+    this.yaml.push({
+      image,
+    });
+    return this;
+  }
+
   include(value: { template: string }) {
     if (this.yaml.find((item) => (item as { include: Include }).include)) {
       const { include } = this.yaml.filter(
@@ -92,6 +114,13 @@ class GitlabCI {
     }
     this.yaml.push({
       include: [value],
+    });
+    return this;
+  }
+
+  workflow(value: { rules: Rule[] }) {
+    this.yaml.push({
+      workflow: value,
     });
     return this;
   }
