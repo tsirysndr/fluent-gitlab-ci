@@ -1,6 +1,12 @@
+export type When = "on_success" | "on_failure" | "always";
+
+export type Policy = "pull-push" | "pull" | "push";
+
 export type Cache = {
+  when?: When;
   key?: string;
   paths: string[];
+  policy?: Policy;
 };
 
 export type Rule = {
@@ -39,7 +45,7 @@ export type Artifacts = {
   expose_as?: string;
   name?: string;
   untracked?: boolean;
-  when?: "on_success" | "on_failure" | "always";
+  when?: When;
   expires_in?: string;
   reports?: Reports;
 };
@@ -68,7 +74,7 @@ export type Job = {
   stage?: string;
   environment?: Environment | string;
   image?: string;
-  extends?: string;
+  extends?: string | string[];
   interruptible?: boolean;
   needs?: string[];
   resource_group?: string;
