@@ -16,7 +16,7 @@ image: node:latest
 services:
   - mysql:latest
   - redis:latest
-  - postgres:latest
+ # - postgres:latest
 
 # This folder is cached between builds
 # https://docs.gitlab.com/ee/ci/yaml/index.html#cache
