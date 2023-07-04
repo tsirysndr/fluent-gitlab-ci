@@ -62,7 +62,7 @@ const buildJob = new Job()
   .afterScript("rm -f android-signing-keystore.jks || true")
   .artifacts({ paths: ["app/build/outputs"] });
 
-const bulidDebug = new Job()
+const buildDebug = new Job()
   .extends(".build_job")
   .script("bundle exec fastlane buildDebug");
 
@@ -132,7 +132,7 @@ const gitlabci = new GitlabCI()
   .addJob("updateContainer", updateContainer)
   .addJob("ensureContainer", ensureContainer)
   .addJob(".build_job", buildJob)
-  .addJob("buildDebug", bulidDebug)
+  .addJob("buildDebug", buildDebug)
   .addJob("buildRelease", buildRelease)
   .addJob("testDebug", testDebug)
   .addJob("publishInternal", publishInternal)
