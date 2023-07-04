@@ -203,6 +203,11 @@ class Job {
     return this;
   }
 
+  tags(tags: string[]): Job {
+    this.job.tags = tags;
+    return this;
+  }
+
   into(): JobSpec {
     return this.job;
   }

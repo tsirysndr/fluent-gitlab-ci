@@ -103,6 +103,7 @@ export type Job = {
   variables?: Variable;
   dependencies?: string[];
   coverage?: string;
+  tags?: string[];
 };
 
 export type Variable = {
