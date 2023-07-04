@@ -12,7 +12,7 @@ image: elixir:latest
 # Only needed when using a docker container to run your tests in.
 # Check out: https://docs.gitlab.com/ee/ci/services/index.html
 services:
-  - mysql:latest
+  #- mysql:latest
   - redis:latest
   - postgres:latest
 
