@@ -198,6 +198,11 @@ class Job {
     return this;
   }
 
+  coverage(coverage: string): Job {
+    this.job.coverage = coverage;
+    return this;
+  }
+
   into(): JobSpec {
     return this.job;
   }

@@ -102,6 +102,7 @@ export type Job = {
   cache?: Cache;
   variables?: Variable;
   dependencies?: string[];
+  coverage?: string;
 };
 
 export type Variable = {
