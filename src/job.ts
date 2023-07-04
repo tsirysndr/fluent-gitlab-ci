@@ -1,5 +1,12 @@
 import Environment from "./environment.ts";
-import { Artifacts, Job as JobSpec, Rule, Variable } from "./gitlabci_spec.ts";
+import {
+  Artifacts,
+  Job as JobSpec,
+  Policy,
+  Rule,
+  Variable,
+  When,
+} from "./gitlabci_spec.ts";
 
 class Job {
   private job: JobSpec;
@@ -33,7 +40,7 @@ class Job {
     return this;
   }
 
-  extends(value: string): Job {
+  extends(value: string | string[]): Job {
     this.job.extends = value;
     return this;
   }
@@ -176,10 +183,12 @@ class Job {
     return this;
   }
 
-  cache(paths: string[], key?: string): Job {
+  cache(paths: string[], key?: string, when?: When, policy?: Policy): Job {
     this.job.cache = {
       key,
       paths,
+      when,
+      policy,
     };
     return this;
   }
