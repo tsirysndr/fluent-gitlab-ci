@@ -1,4 +1,4 @@
-import { stringify } from "https://esm.sh/yaml@v2.3.1";
+import { stringify } from "yaml";
 import Job from "./job.ts";
 import { YamlSpec, Variable, Include, Rule } from "./gitlabci_spec.ts";
 
