@@ -3,6 +3,7 @@ import {
   Artifacts,
   Job as JobSpec,
   Only,
+  Parallel,
   Policy,
   Rule,
   Variable,
@@ -179,7 +180,7 @@ class Job {
     return this;
   }
 
-  parallel(parallel: number | { matrix: { [key: string]: any } }): Job {
+  parallel(parallel: Parallel): Job {
     this.job.parallel = parallel;
     return this;
   }

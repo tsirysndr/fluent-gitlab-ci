@@ -100,6 +100,13 @@ export const OnlySchema = z.union([
   }),
 ]);
 
+export const Parallel = z.union([
+  z.number(),
+  z.object({
+    matrix: z.record(z.any()),
+  }),
+]);
+
 export const JobSchema = z.object({
   stage: z.string().optional(),
   environment: z.union([EnvironmentSchema, z.string()]).optional(),
@@ -118,14 +125,7 @@ export const JobSchema = z.object({
   except: z.array(z.string()).optional(),
   artifacts: ArtifactsSchema.optional(),
   services: z.array(z.string()).optional(),
-  parallel: z
-    .union([
-      z.number(),
-      z.object({
-        matrix: z.record(z.any()),
-      }),
-    ])
-    .optional(),
+  parallel: Parallel.optional(),
   include: z
     .array(
       z.object({
@@ -207,6 +207,8 @@ export type Environment = z.infer<typeof EnvironmentSchema>;
 export type Variable = z.infer<typeof VariableSchema>;
 
 export type Only = z.infer<typeof OnlySchema>;
+
+export type Parallel = z.infer<typeof Parallel>;
 
 export type Job = z.infer<typeof JobSchema>;
 
