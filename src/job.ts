@@ -2,6 +2,7 @@ import Environment from "./environment.ts";
 import {
   Artifacts,
   Job as JobSpec,
+  Only,
   Policy,
   Rule,
   Variable,
@@ -125,7 +126,7 @@ class Job {
     return this;
   }
 
-  only(only: string[] | { changes?: string[]; variables?: string[] }): Job {
+  only(only: Only): Job {
     this.job.only = only;
     return this;
   }
@@ -135,7 +136,7 @@ class Job {
     return this;
   }
 
-  when(when: string): Job {
+  when(when: When): Job {
     this.job.when = when;
     return this;
   }

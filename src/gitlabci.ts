@@ -1,6 +1,13 @@
 import { stringify } from "yaml";
 import Job from "./job.ts";
-import { YamlSpec, Variable, Include, Rule } from "./gitlabci_spec.ts";
+import {
+  YamlSpec,
+  Variable,
+  Include,
+  Rule,
+  VariableSchema,
+  RuleSchema,
+} from "./gitlabci_spec.ts";
 
 class GitlabCI {
   private yaml: YamlSpec;
@@ -42,6 +49,7 @@ class GitlabCI {
   }
 
   variables(variables: Variable): GitlabCI {
+    VariableSchema.parse(variables);
     if (this.yaml.find((item) => (item as { variables: Variable }).variables)) {
       const { variables: vars } = this.yaml.filter(
         (item) => (item as { variables: Variable }).variables
@@ -119,6 +127,9 @@ class GitlabCI {
   }
 
   workflow(value: { rules: Rule[] }): GitlabCI {
+    for (const rule of value.rules) {
+      RuleSchema.parse(rule);
+    }
     this.yaml.push({
       workflow: value,
     });
