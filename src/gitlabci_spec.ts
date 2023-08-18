@@ -1,157 +1,218 @@
-export type When = "on_success" | "on_failure" | "always";
+import { z } from "https://deno.land/x/zod@v3.22.1/mod.ts";
 
-export type Policy = "pull-push" | "pull" | "push";
+export const WhenSchema = z.enum([
+  "on_success",
+  "on_failure",
+  "always",
+  "never",
+  "manual",
+]);
 
-export type Cache = {
-  when?: When;
-  key?: string;
-  paths: string[];
-  policy?: Policy;
-};
+export const PolicySchema = z.enum(["pull-push", "pull", "push"]);
 
-export type Rule = {
-  if?: string;
-  when?: string;
-  exists?: string[];
-};
+export const CacheSchema = z.object({
+  when: WhenSchema.optional(),
+  key: z.string().optional(),
+  paths: z.array(z.string()),
+  policy: PolicySchema.optional(),
+});
 
-export type Reports = {
-  junit?: string | string[];
-  browser_performance?: string;
-  coverage_report?: {
-    coverage_format: string;
-    path: string;
-  };
-  codequality?: string | string[];
-  dotenv?: string | string[];
-  lsif?: string | string[];
-  sast?: string | string[];
-  dependency_scanning?: string | string[];
-  container_scanning?: string | string[];
-  dast?: string | string[];
-  license_management?: string | string[];
-  license_scanning?: string | string[];
-  requirements?: string | string[];
-  secret_detection?: string | string[];
-  metrics?: string | string[];
-  terraform?: string | string[];
-  cyclonedx?: string | string[];
-  load_performance?: string | string[];
-};
+export const RuleSchema = z.object({
+  if: z.string().optional(),
+  when: z.string().optional(),
+  exists: z.array(z.string()).optional(),
+});
 
-export type Artifacts = {
-  paths?: string[];
-  exclude?: string[];
-  expose_as?: string;
-  name?: string;
-  untracked?: boolean;
-  when?: When;
-  expires_in?: string;
-  reports?: Reports;
-};
+export const ReportsSchema = z.object({
+  junit: z.union([z.string(), z.array(z.string())]).optional(),
+  browser_performance: z.string().optional(),
+  coverage_report: z
+    .object({
+      coverage_format: z.string(),
+      path: z.string(),
+    })
+    .optional(),
+  codequality: z.union([z.string(), z.array(z.string())]).optional(),
+  dotenv: z.union([z.string(), z.array(z.string())]).optional(),
+  lsif: z.union([z.string(), z.array(z.string())]).optional(),
+  sast: z.union([z.string(), z.array(z.string())]).optional(),
+  dependency_scanning: z.union([z.string(), z.array(z.string())]).optional(),
+  container_scanning: z.union([z.string(), z.array(z.string())]).optional(),
+  dast: z.union([z.string(), z.array(z.string())]).optional(),
+  license_management: z.union([z.string(), z.array(z.string())]).optional(),
+  license_scanning: z.union([z.string(), z.array(z.string())]).optional(),
+  requirements: z.union([z.string(), z.array(z.string())]).optional(),
+  secret_detection: z.union([z.string(), z.array(z.string())]).optional(),
+  metrics: z.union([z.string(), z.array(z.string())]).optional(),
+  terraform: z.union([z.string(), z.array(z.string())]).optional(),
+  cyclonedx: z.union([z.string(), z.array(z.string())]).optional(),
+  load_performance: z.union([z.string(), z.array(z.string())]).optional(),
+});
 
-export type Action = "start" | "prepare" | "stop" | "verify" | "access";
+export const ArtifactsSchema = z.object({
+  paths: z.array(z.string()).optional(),
+  exclude: z.array(z.string()).optional(),
+  expose_as: z.string().optional(),
+  name: z.string().optional(),
+  untracked: z.boolean().optional(),
+  when: WhenSchema.optional(),
+  expire_in: z.string().optional(),
+  reports: ReportsSchema.optional(),
+});
 
-export type DeploymentTier =
-  | "production"
-  | "staging"
-  | "testing"
-  | "development"
-  | "other";
+export const ActionSchema = z.enum([
+  "start",
+  "prepare",
+  "stop",
+  "verify",
+  "access",
+]);
 
-export type Environment = {
-  name: string;
-  url?: string;
-  on_stop?: string;
-  action?: Action;
-  auto_stop_in?: string;
-  kubernetes?: {
-    namespace: string;
-  };
-  deployment_tier?: DeploymentTier;
-};
-export type Job = {
-  stage?: string;
-  environment?: Environment | string;
-  image?: string;
-  extends?: string | string[];
-  interruptible?: boolean;
-  needs?: string[];
-  resource_group?: string;
-  script?: string[];
-  before_script?: string[];
-  after_script?: string[];
-  only?: string[] | { changes?: string[]; variables?: string[] };
-  rules?: Rule[];
-  when?: string;
-  allow_failure?: boolean;
-  except?: string[];
-  artifacts?: Artifacts;
-  services?: string[];
-  parallel?:
-    | {
-        matrix: {
-          [key: string]: any;
-        };
-      }
-    | number;
-  include?: {
-    local: string;
-    strategy: string;
-  }[];
-  cache?: Cache;
-  variables?: Variable;
-  dependencies?: string[];
-  coverage?: string;
-  tags?: string[];
-};
+export const DeploymentTierSchema = z.enum([
+  "production",
+  "staging",
+  "testing",
+  "development",
+  "other",
+]);
 
-export type Variable = {
-  [key: string]: string;
-};
+export const EnvironmentSchema = z.object({
+  name: z.string(),
+  url: z.string().optional(),
+  on_stop: z.string().optional(),
+  action: ActionSchema.optional(),
+  auto_stop_in: z.string().optional(),
+  kubernetes: z
+    .object({
+      namespace: z.string(),
+    })
+    .optional(),
+  deployment_tier: DeploymentTierSchema.optional(),
+});
 
-export type Include =
-  | {
-      template?: string;
-    }[]
-  | string;
+export const VariableSchema = z.record(z.string());
 
-type GitlabSpec = {
-  image?:
-    | {
-        name: string;
-        pull_policy: string;
-      }
-    | string;
-  services?: string[];
-  before_script?: string[];
-  after_script?: string[];
-  variables?: Variable;
-  cache?: {
-    key?: string;
-    paths: string[];
-  };
-  artifacts?: any;
-  hooks?: {
-    pre_get_sources_script: string;
-  };
-  interruptible?: any;
-  retry?: any;
-  tags?: any;
-  timeout?: any;
-  include?: Include[];
-  pages?: any;
-  workflow?: {
-    rules: Rule[];
-  };
-  stages?: string[];
-  build?: {
-    stage: string;
-    script: string[];
-  };
-  secrets?: any;
-  [key: string]: Job | any | undefined;
-};
+export const OnlySchema = z.union([
+  z.array(z.string()),
+  z.object({
+    changes: z.array(z.string()).optional(),
+    variables: z.array(z.string()).optional(),
+  }),
+]);
+
+export const JobSchema = z.object({
+  stage: z.string().optional(),
+  environment: z.union([EnvironmentSchema, z.string()]).optional(),
+  image: z.string().optional(),
+  extends: z.union([z.string(), z.array(z.string())]).optional(),
+  interruptible: z.boolean().optional(),
+  needs: z.array(z.string()).optional(),
+  resource_group: z.string().optional(),
+  script: z.array(z.string()).optional(),
+  before_script: z.array(z.string()).optional(),
+  after_script: z.array(z.string()).optional(),
+  only: OnlySchema.optional(),
+  rules: z.array(RuleSchema).optional(),
+  when: WhenSchema.optional(),
+  allow_failure: z.boolean().optional(),
+  except: z.array(z.string()).optional(),
+  artifacts: ArtifactsSchema.optional(),
+  services: z.array(z.string()).optional(),
+  parallel: z
+    .union([
+      z.number(),
+      z.object({
+        matrix: z.record(z.any()),
+      }),
+    ])
+    .optional(),
+  include: z
+    .array(
+      z.object({
+        local: z.string(),
+        strategy: z.string(),
+      })
+    )
+    .optional(),
+  cache: CacheSchema.optional(),
+  variables: VariableSchema.optional(),
+  dependencies: z.array(z.string()).optional(),
+  coverage: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+});
+
+export const IncludeSchema = z.union([
+  z.array(
+    z.object({
+      template: z.string(),
+    })
+  ),
+  z.string(),
+]);
+
+export const GitlabSpecSchema = z.object({
+  image: z
+    .union([
+      z.object({
+        name: z.string(),
+        pull_policy: z.string(),
+      }),
+      z.string(),
+    ])
+    .optional(),
+  services: z.array(z.string()).optional(),
+  before_script: z.array(z.string()).optional(),
+  after_script: z.array(z.string()).optional(),
+  variables: VariableSchema.optional(),
+  cache: CacheSchema.optional(),
+  artifacts: ArtifactsSchema.optional(),
+  hooks: z
+    .object({
+      pre_get_sources_script: z.string(),
+    })
+    .optional(),
+  interruptible: z.boolean().optional(),
+  retry: z.any().optional(),
+  tags: z.any().optional(),
+  timeout: z.any().optional(),
+  include: z.array(IncludeSchema).optional(),
+  pages: z.any().optional(),
+  workflow: z
+    .object({
+      rules: z.array(RuleSchema),
+    })
+    .optional(),
+  stages: z.array(z.string()).optional(),
+  ["string"]: z.union([JobSchema, z.any()]).optional(),
+});
+
+export type When = z.infer<typeof WhenSchema>;
+
+export type Policy = z.infer<typeof PolicySchema>;
+
+export type Cache = z.infer<typeof CacheSchema>;
+
+export type Rule = z.infer<typeof RuleSchema>;
+
+export type Reports = z.infer<typeof ReportsSchema>;
+
+export type Artifacts = z.infer<typeof ArtifactsSchema>;
+
+export type Action = z.infer<typeof ActionSchema>;
+
+export type DeploymentTier = z.infer<typeof DeploymentTierSchema>;
+
+export type Environment = z.infer<typeof EnvironmentSchema>;
+
+export type Variable = z.infer<typeof VariableSchema>;
+
+export type Only = z.infer<typeof OnlySchema>;
+
+export type Job = z.infer<typeof JobSchema>;
+
+export type Include = z.infer<typeof IncludeSchema>;
+
+type GitlabSpec = z.infer<typeof GitlabSpecSchema>;
 
 export type YamlSpec = (
   | { [key: string]: Job }
