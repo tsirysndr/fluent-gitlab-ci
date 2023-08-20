@@ -1,4 +1,4 @@
-import { stringify } from "yaml";
+import { stringify } from "https://esm.sh/v128/yaml@2.3.1";
 import Job from "./job.ts";
 import {
   YamlSpec,
