@@ -1,7 +1,0 @@
-{
-  "imports": {
-    "yaml": "https://esm.sh/v128/yaml@2.3.1",
-    "yaml/": "https://esm.sh/v128/yaml@2.3.1/"
-  },
-  "scopes": {}
-}

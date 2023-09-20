@@ -1,4 +1,4 @@
-import { z } from "https://deno.land/x/zod@v3.22.1/mod.ts";
+import { z } from "../deps.ts";
 
 export const WhenSchema = z.enum([
   "on_success",
