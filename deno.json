@@ -1,4 +1,7 @@
 {
+  "name": "@tsirysndr/fluent-gitlab-ci",
+  "version": "0.5.0",
+  "exports": "./mod.ts",
   "tasks": {
     "esm:add": "deno run -A https://esm.sh/v128 add",
     "esm:update": "deno run -A https://esm.sh/v128 update",
